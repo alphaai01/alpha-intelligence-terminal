@@ -11,6 +11,7 @@ interface CountryData {
   riskScore: number
   riskLevel: string
   marketImpact: string
+  isoId: string
   index?: string
   value?: string
   change?: string
@@ -25,6 +26,30 @@ interface ArcData {
   label: string
 }
 
+// ISO 3166-1 numeric codes for world-atlas TopoJSON
+const countryIsoMap: Record<string, string> = {
+  "United States": "840",
+  "United Kingdom": "826",
+  "Russia": "643",
+  "China": "156",
+  "India": "356",
+  "Japan": "392",
+  "Iran": "364",
+  "Israel": "376",
+  "Ukraine": "804",
+  "Taiwan": "158",
+  "Australia": "036",
+  "Germany": "276",
+  "Brazil": "076",
+  "Saudi Arabia": "682",
+  "Turkey": "792",
+  "South Africa": "710",
+  "Nigeria": "566",
+  "Pakistan": "586",
+  "Singapore": "702",
+  "South Korea": "410",
+}
+
 export default function MarketPulse() {
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -36,27 +61,31 @@ export default function MarketPulse() {
   const worldDataRef = useRef<any>(null)
 
   const countries: CountryData[] = [
-    { name: "United States", lat: 39.8, lng: -98.6, riskScore: 35, riskLevel: "low", marketImpact: "Stable monetary policy supporting risk assets", index: "S&P 500", value: "5,124.50", change: "+1.2%" },
-    { name: "United Kingdom", lat: 55.4, lng: -3.4, riskScore: 42, riskLevel: "medium", marketImpact: "Brexit aftereffects on trade markets", index: "FTSE 100", value: "7,890.30", change: "+0.8%" },
-    { name: "Russia", lat: 61.5, lng: 105.3, riskScore: 92, riskLevel: "critical", marketImpact: "Sanctions and military operations escalating", index: "MOEX", value: "3,245.60", change: "-2.1%" },
-    { name: "China", lat: 35.9, lng: 104.2, riskScore: 78, riskLevel: "high", marketImpact: "Trade tensions and property concerns persist", index: "Shanghai Comp", value: "3,234.60", change: "-0.5%" },
-    { name: "India", lat: 20.6, lng: 79.0, riskScore: 45, riskLevel: "medium", marketImpact: "Strong GDP growth driving equity inflows", index: "Sensex", value: "74,234.50", change: "+2.1%" },
-    { name: "Japan", lat: 36.2, lng: 138.3, riskScore: 30, riskLevel: "low", marketImpact: "BOJ policy normalization cautiously", index: "Nikkei 225", value: "38,945.30", change: "+0.9%" },
-    { name: "Iran", lat: 32.4, lng: 53.7, riskScore: 88, riskLevel: "critical", marketImpact: "Military escalation risk affecting oil" },
-    { name: "Israel", lat: 31.0, lng: 34.8, riskScore: 85, riskLevel: "critical", marketImpact: "Regional conflict driving safe-haven demand" },
-    { name: "Ukraine", lat: 48.4, lng: 31.2, riskScore: 95, riskLevel: "critical", marketImpact: "Ongoing conflict with supply chain impacts" },
-    { name: "Taiwan", lat: 23.7, lng: 121.0, riskScore: 72, riskLevel: "high", marketImpact: "Geopolitical tension on semiconductor supply" },
-    { name: "Australia", lat: -25.3, lng: 133.8, riskScore: 25, riskLevel: "low", marketImpact: "Commodity exports recovery", index: "ASX 200", value: "7,654.30", change: "+1.8%" },
-    { name: "Germany", lat: 51.2, lng: 10.5, riskScore: 38, riskLevel: "medium", marketImpact: "Manufacturing PMI showing recovery", index: "DAX", value: "18,456.20", change: "+1.5%" },
-    { name: "Brazil", lat: -14.2, lng: -51.9, riskScore: 55, riskLevel: "medium", marketImpact: "Political uncertainty on confidence" },
-    { name: "Saudi Arabia", lat: 24.0, lng: 45.0, riskScore: 52, riskLevel: "medium", marketImpact: "Oil production cuts supporting prices" },
-    { name: "Turkey", lat: 39.0, lng: 35.2, riskScore: 68, riskLevel: "high", marketImpact: "Currency volatility and inflation" },
-    { name: "South Africa", lat: -30.6, lng: 22.9, riskScore: 58, riskLevel: "medium", marketImpact: "Political transition sentiment" },
-    { name: "Nigeria", lat: 9.08, lng: 8.68, riskScore: 65, riskLevel: "high", marketImpact: "Oil dependency challenges" },
-    { name: "Pakistan", lat: 30.4, lng: 69.3, riskScore: 75, riskLevel: "high", marketImpact: "IMF program and instability" },
-    { name: "Singapore", lat: 1.35, lng: 103.8, riskScore: 20, riskLevel: "low", marketImpact: "Financial hub stability", index: "STI", value: "3,567.40", change: "+0.3%" },
-    { name: "South Korea", lat: 35.9, lng: 127.8, riskScore: 40, riskLevel: "medium", marketImpact: "Tech exports showing resilience" },
+    { name: "United States", lat: 39.8, lng: -98.6, riskScore: 35, riskLevel: "low", marketImpact: "Stable monetary policy supporting risk assets", isoId: "840", index: "S&P 500", value: "5,124.50", change: "+1.2%" },
+    { name: "United Kingdom", lat: 55.4, lng: -3.4, riskScore: 42, riskLevel: "medium", marketImpact: "Brexit aftereffects on trade markets", isoId: "826", index: "FTSE 100", value: "7,890.30", change: "+0.8%" },
+    { name: "Russia", lat: 61.5, lng: 105.3, riskScore: 92, riskLevel: "critical", marketImpact: "Sanctions and military operations escalating", isoId: "643", index: "MOEX", value: "3,245.60", change: "-2.1%" },
+    { name: "China", lat: 35.9, lng: 104.2, riskScore: 78, riskLevel: "high", marketImpact: "Trade tensions and property concerns persist", isoId: "156", index: "Shanghai Comp", value: "3,234.60", change: "-0.5%" },
+    { name: "India", lat: 20.6, lng: 79.0, riskScore: 45, riskLevel: "medium", marketImpact: "Strong GDP growth driving equity inflows", isoId: "356", index: "Sensex", value: "74,234.50", change: "+2.1%" },
+    { name: "Japan", lat: 36.2, lng: 138.3, riskScore: 30, riskLevel: "low", marketImpact: "BOJ policy normalization cautiously", isoId: "392", index: "Nikkei 225", value: "38,945.30", change: "+0.9%" },
+    { name: "Iran", lat: 32.4, lng: 53.7, riskScore: 88, riskLevel: "critical", marketImpact: "Military escalation risk affecting oil", isoId: "364" },
+    { name: "Israel", lat: 31.0, lng: 34.8, riskScore: 85, riskLevel: "critical", marketImpact: "Regional conflict driving safe-haven demand", isoId: "376" },
+    { name: "Ukraine", lat: 48.4, lng: 31.2, riskScore: 95, riskLevel: "critical", marketImpact: "Ongoing conflict with supply chain impacts", isoId: "804" },
+    { name: "Taiwan", lat: 23.7, lng: 121.0, riskScore: 72, riskLevel: "high", marketImpact: "Geopolitical tension on semiconductor supply", isoId: "158" },
+    { name: "Australia", lat: -25.3, lng: 133.8, riskScore: 25, riskLevel: "low", marketImpact: "Commodity exports recovery", isoId: "036", index: "ASX 200", value: "7,654.30", change: "+1.8%" },
+    { name: "Germany", lat: 51.2, lng: 10.5, riskScore: 38, riskLevel: "medium", marketImpact: "Manufacturing PMI showing recovery", isoId: "276", index: "DAX", value: "18,456.20", change: "+1.5%" },
+    { name: "Brazil", lat: -14.2, lng: -51.9, riskScore: 55, riskLevel: "medium", marketImpact: "Political uncertainty on confidence", isoId: "076" },
+    { name: "Saudi Arabia", lat: 24.0, lng: 45.0, riskScore: 52, riskLevel: "medium", marketImpact: "Oil production cuts supporting prices", isoId: "682" },
+    { name: "Turkey", lat: 39.0, lng: 35.2, riskScore: 68, riskLevel: "high", marketImpact: "Currency volatility and inflation", isoId: "792" },
+    { name: "South Africa", lat: -30.6, lng: 22.9, riskScore: 58, riskLevel: "medium", marketImpact: "Political transition sentiment", isoId: "710" },
+    { name: "Nigeria", lat: 9.08, lng: 8.68, riskScore: 65, riskLevel: "high", marketImpact: "Oil dependency challenges", isoId: "566" },
+    { name: "Pakistan", lat: 30.4, lng: 69.3, riskScore: 75, riskLevel: "high", marketImpact: "IMF program and instability", isoId: "586" },
+    { name: "Singapore", lat: 1.35, lng: 103.8, riskScore: 20, riskLevel: "low", marketImpact: "Financial hub stability", isoId: "702", index: "STI", value: "3,567.40", change: "+0.3%" },
+    { name: "South Korea", lat: 35.9, lng: 127.8, riskScore: 40, riskLevel: "medium", marketImpact: "Tech exports showing resilience", isoId: "410" },
   ]
+
+  // Build a map of ISO numeric ID -> risk data for fast lookup
+  const riskByIsoId: Record<string, CountryData> = {}
+  countries.forEach((c) => { riskByIsoId[c.isoId] = c })
 
   const arcs: ArcData[] = [
     { startLat: 39.8, startLng: -98.6, endLat: 55.4, endLng: -3.4, color: "#10b981", label: "Trade" },
@@ -77,6 +106,32 @@ export default function MarketPulse() {
     if (score >= 60) return "#f59e0b"
     if (score >= 35) return "#3b82f6"
     return "#10b981"
+  }
+
+  const getCountryFill = (featureId: string): string => {
+    const data = riskByIsoId[featureId]
+    if (!data) return "#0d2b42"
+    if (data.riskLevel === "critical") return "#7f1d1d"
+    if (data.riskLevel === "high") return "#78350f"
+    if (data.riskLevel === "medium") return "#1e3a5f"
+    return "#0d3b3b"
+  }
+
+  const getCountryStroke = (featureId: string): string => {
+    const data = riskByIsoId[featureId]
+    if (!data) return "#1b9aaa"
+    if (data.riskLevel === "critical") return "#ef4444"
+    if (data.riskLevel === "high") return "#f59e0b"
+    if (data.riskLevel === "medium") return "#3b82f6"
+    return "#10b981"
+  }
+
+  const getCountryStrokeOpacity = (featureId: string): number => {
+    const data = riskByIsoId[featureId]
+    if (!data) return 0.25
+    if (data.riskLevel === "critical") return 0.8
+    if (data.riskLevel === "high") return 0.6
+    return 0.35
   }
 
   const drawGlobe = useCallback(() => {
@@ -111,7 +166,7 @@ export default function MarketPulse() {
       .attr("cx", width / 2).attr("cy", height / 2).attr("r", radius + 20)
       .attr("fill", "url(#globe-glow)")
 
-    // Globe sphere
+    // Globe sphere (ocean)
     g.append("circle")
       .attr("cx", width / 2).attr("cy", height / 2).attr("r", radius)
       .attr("fill", "#0a1628").attr("stroke", "#1b9aaa").attr("stroke-width", 0.5).attr("stroke-opacity", 0.3)
@@ -121,9 +176,9 @@ export default function MarketPulse() {
     g.append("path")
       .datum(graticule())
       .attr("d", path as any)
-      .attr("fill", "none").attr("stroke", "#1b9aaa").attr("stroke-width", 0.15).attr("stroke-opacity", 0.2)
+      .attr("fill", "none").attr("stroke", "#1b9aaa").attr("stroke-width", 0.15).attr("stroke-opacity", 0.15)
 
-    // Draw countries if world data loaded
+    // Draw countries with risk-based coloring
     if (worldDataRef.current) {
       const land = topojson.feature(worldDataRef.current, worldDataRef.current.objects.countries) as any
       g.selectAll("path.country")
@@ -132,10 +187,18 @@ export default function MarketPulse() {
         .append("path")
         .attr("class", "country")
         .attr("d", path as any)
-        .attr("fill", "#0d2b42")
-        .attr("stroke", "#1b9aaa")
-        .attr("stroke-width", 0.3)
-        .attr("stroke-opacity", 0.25)
+        .attr("fill", (d: any) => getCountryFill(d.id))
+        .attr("stroke", (d: any) => getCountryStroke(d.id))
+        .attr("stroke-width", (d: any) => {
+          const data = riskByIsoId[d.id]
+          return data && data.riskLevel === "critical" ? 1.2 : 0.3
+        })
+        .attr("stroke-opacity", (d: any) => getCountryStrokeOpacity(d.id))
+        .style("cursor", (d: any) => riskByIsoId[d.id] ? "pointer" : "default")
+        .on("click", (_event: any, d: any) => {
+          const data = riskByIsoId[d.id]
+          if (data) setSelectedCountry(data)
+        })
     }
 
     // Draw arcs
@@ -158,7 +221,7 @@ export default function MarketPulse() {
       }
     })
 
-    // Draw country points
+    // Draw country point markers
     countries.forEach((country) => {
       const coords = projection([country.lng, country.lat])
       if (!coords) return
@@ -168,29 +231,35 @@ export default function MarketPulse() {
 
       // Outer glow
       point.append("circle")
-        .attr("r", Math.max(4, country.riskScore / 12))
+        .attr("r", Math.max(5, country.riskScore / 10))
         .attr("fill", getRiskColor(country.riskScore))
-        .attr("fill-opacity", 0.15)
+        .attr("fill-opacity", 0.2)
 
       // Inner dot
       point.append("circle")
-        .attr("r", Math.max(2.5, country.riskScore / 20))
+        .attr("r", Math.max(3, country.riskScore / 18))
         .attr("fill", getRiskColor(country.riskScore))
-        .attr("fill-opacity", 0.8)
+        .attr("fill-opacity", 0.9)
 
-      // Pulse animation for critical
+      // Pulsing ring for critical countries
       if (country.riskLevel === "critical") {
         point.append("circle")
-          .attr("r", Math.max(4, country.riskScore / 12))
+          .attr("r", Math.max(8, country.riskScore / 8))
           .attr("fill", "none")
-          .attr("stroke", getRiskColor(country.riskScore))
-          .attr("stroke-width", 1)
-          .attr("stroke-opacity", 0.5)
+          .attr("stroke", "#ef4444")
+          .attr("stroke-width", 1.5)
+          .attr("stroke-opacity", 0.4)
+
+        // Second pulse ring
+        point.append("circle")
+          .attr("r", Math.max(12, country.riskScore / 6))
+          .attr("fill", "none")
+          .attr("stroke", "#ef4444")
+          .attr("stroke-width", 0.8)
+          .attr("stroke-opacity", 0.15)
       }
 
       point.on("click", () => setSelectedCountry(country))
-
-      // Tooltip on hover
       point.append("title").text(`${country.name} - Risk: ${country.riskScore} (${country.riskLevel.toUpperCase()})`)
     })
 
@@ -209,7 +278,6 @@ export default function MarketPulse() {
   }, [])
 
   useEffect(() => {
-    // Load world topology data
     fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
       .then((res) => res.json())
       .then((data) => {
@@ -435,4 +503,4 @@ export default function MarketPulse() {
       </div>
     </div>
   )
-}
+          }
