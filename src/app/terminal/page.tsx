@@ -3,24 +3,26 @@
 import { useState } from "react"
 import TopBar from "@/components/terminal/top-bar"
 import MarketPulse from "@/components/terminal/market-pulse"
+import GeoMap from "@/components/terminal/geo-map"
 import SignalEngine from "@/components/terminal/signal-engine"
 import Portfolio from "@/components/terminal/portfolio"
-import RiskMatrix from "@/components/terminal/risk-matrix"
 
-type TabType = "market-pulse" | "signal-engine" | "portfolio" | "risk-matrix"
+type TabType = "earth-pulse" | "geo-map" | "ai-signals" | "portfolio"
 
 export default function TerminalPage() {
-  const [activeTab, setActiveTab] = useState<TabType>("market-pulse")
+  const [activeTab, setActiveTab] = useState<TabType>("earth-pulse")
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#0d1b2a]">
-      <TopBar activeTab={activeTab} onTabChange={(tab: string) => setActiveTab(tab as TabType)} />
-
-      <div className="flex-1 overflow-auto">
-        {activeTab === "market-pulse" && <MarketPulse />}
-        {activeTab === "signal-engine" && <SignalEngine />}
+    <div className="h-screen w-full flex flex-col bg-[#060d19]">
+      <TopBar
+        activeTab={activeTab}
+        onTabChange={(tab: string) => setActiveTab(tab as TabType)}
+      />
+      <div className="flex-1 overflow-hidden">
+        {activeTab === "earth-pulse" && <MarketPulse />}
+        {activeTab === "geo-map" && <GeoMap />}
+        {activeTab === "ai-signals" && <SignalEngine />}
         {activeTab === "portfolio" && <Portfolio />}
-        {activeTab === "risk-matrix" && <RiskMatrix />}
       </div>
     </div>
   )
