@@ -11,6 +11,31 @@ interface CountryData {
   riskScore: number
   riskLevel: string
   color: string
+  isoId: string
+}
+
+// ISO 3166-1 numeric codes for world-atlas TopoJSON
+const countryIsoMap: Record<string, string> = {
+  "United States": "840",
+  "United Kingdom": "826",
+  "Russia": "643",
+  "China": "156",
+  "India": "356",
+  "Japan": "392",
+  "Iran": "364",
+  "Israel": "376",
+  "Ukraine": "804",
+  "Taiwan": "158",
+  "Australia": "036",
+  "Germany": "276",
+  "Brazil": "076",
+  "Saudi Arabia": "682",
+  "Turkey": "792",
+  "South Africa": "710",
+  "Nigeria": "566",
+  "Pakistan": "586",
+  "Singapore": "702",
+  "South Korea": "410",
 }
 
 export default function GeoMap() {
@@ -20,27 +45,49 @@ export default function GeoMap() {
   const worldDataRef = useRef<any>(null)
 
   const countries: CountryData[] = [
-    { name: "United States", lat: 39.8, lng: -98.6, riskScore: 35, riskLevel: "low", color: "#10b981" },
-    { name: "United Kingdom", lat: 55.4, lng: -3.4, riskScore: 42, riskLevel: "medium", color: "#3b82f6" },
-    { name: "Russia", lat: 61.5, lng: 105.3, riskScore: 92, riskLevel: "critical", color: "#ef4444" },
-    { name: "China", lat: 35.9, lng: 104.2, riskScore: 78, riskLevel: "high", color: "#f59e0b" },
-    { name: "India", lat: 20.6, lng: 79.0, riskScore: 45, riskLevel: "medium", color: "#3b82f6" },
-    { name: "Japan", lat: 36.2, lng: 138.3, riskScore: 30, riskLevel: "low", color: "#10b981" },
-    { name: "Iran", lat: 32.4, lng: 53.7, riskScore: 88, riskLevel: "critical", color: "#ef4444" },
-    { name: "Israel", lat: 31.0, lng: 34.8, riskScore: 85, riskLevel: "critical", color: "#ef4444" },
-    { name: "Ukraine", lat: 48.4, lng: 31.2, riskScore: 95, riskLevel: "critical", color: "#ef4444" },
-    { name: "Taiwan", lat: 23.7, lng: 121.0, riskScore: 72, riskLevel: "high", color: "#f59e0b" },
-    { name: "Germany", lat: 51.2, lng: 10.5, riskScore: 38, riskLevel: "medium", color: "#3b82f6" },
-    { name: "Australia", lat: -25.3, lng: 133.8, riskScore: 25, riskLevel: "low", color: "#10b981" },
-    { name: "Brazil", lat: -14.2, lng: -51.9, riskScore: 55, riskLevel: "medium", color: "#3b82f6" },
-    { name: "Saudi Arabia", lat: 24.0, lng: 45.0, riskScore: 52, riskLevel: "medium", color: "#f59e0b" },
-    { name: "Turkey", lat: 39.0, lng: 35.2, riskScore: 68, riskLevel: "high", color: "#f59e0b" },
-    { name: "South Africa", lat: -30.6, lng: 22.9, riskScore: 58, riskLevel: "medium", color: "#3b82f6" },
-    { name: "Nigeria", lat: 9.08, lng: 8.68, riskScore: 65, riskLevel: "high", color: "#f59e0b" },
-    { name: "Pakistan", lat: 30.4, lng: 69.3, riskScore: 75, riskLevel: "high", color: "#f59e0b" },
-    { name: "Singapore", lat: 1.35, lng: 103.8, riskScore: 20, riskLevel: "low", color: "#10b981" },
-    { name: "South Korea", lat: 35.9, lng: 127.8, riskScore: 40, riskLevel: "medium", color: "#3b82f6" },
+    { name: "United States", lat: 39.8, lng: -98.6, riskScore: 35, riskLevel: "low", color: "#10b981", isoId: "840" },
+    { name: "United Kingdom", lat: 55.4, lng: -3.4, riskScore: 42, riskLevel: "medium", color: "#3b82f6", isoId: "826" },
+    { name: "Russia", lat: 61.5, lng: 105.3, riskScore: 92, riskLevel: "critical", color: "#ef4444", isoId: "643" },
+    { name: "China", lat: 35.9, lng: 104.2, riskScore: 78, riskLevel: "high", color: "#f59e0b", isoId: "156" },
+    { name: "India", lat: 20.6, lng: 79.0, riskScore: 45, riskLevel: "medium", color: "#3b82f6", isoId: "356" },
+    { name: "Japan", lat: 36.2, lng: 138.3, riskScore: 30, riskLevel: "low", color: "#10b981", isoId: "392" },
+    { name: "Iran", lat: 32.4, lng: 53.7, riskScore: 88, riskLevel: "critical", color: "#ef4444", isoId: "364" },
+    { name: "Israel", lat: 31.0, lng: 34.8, riskScore: 85, riskLevel: "critical", color: "#ef4444", isoId: "376" },
+    { name: "Ukraine", lat: 48.4, lng: 31.2, riskScore: 95, riskLevel: "critical", color: "#ef4444", isoId: "804" },
+    { name: "Taiwan", lat: 23.7, lng: 121.0, riskScore: 72, riskLevel: "high", color: "#f59e0b", isoId: "158" },
+    { name: "Germany", lat: 51.2, lng: 10.5, riskScore: 38, riskLevel: "medium", color: "#3b82f6", isoId: "276" },
+    { name: "Australia", lat: -25.3, lng: 133.8, riskScore: 25, riskLevel: "low", color: "#10b981", isoId: "036" },
+    { name: "Brazil", lat: -14.2, lng: -51.9, riskScore: 55, riskLevel: "medium", color: "#3b82f6", isoId: "076" },
+    { name: "Saudi Arabia", lat: 24.0, lng: 45.0, riskScore: 52, riskLevel: "medium", color: "#f59e0b", isoId: "682" },
+    { name: "Turkey", lat: 39.0, lng: 35.2, riskScore: 68, riskLevel: "high", color: "#f59e0b", isoId: "792" },
+    { name: "South Africa", lat: -30.6, lng: 22.9, riskScore: 58, riskLevel: "medium", color: "#3b82f6", isoId: "710" },
+    { name: "Nigeria", lat: 9.08, lng: 8.68, riskScore: 65, riskLevel: "high", color: "#f59e0b", isoId: "566" },
+    { name: "Pakistan", lat: 30.4, lng: 69.3, riskScore: 75, riskLevel: "high", color: "#f59e0b", isoId: "586" },
+    { name: "Singapore", lat: 1.35, lng: 103.8, riskScore: 20, riskLevel: "low", color: "#10b981", isoId: "702" },
+    { name: "South Korea", lat: 35.9, lng: 127.8, riskScore: 40, riskLevel: "medium", color: "#3b82f6", isoId: "410" },
   ]
+
+  // Build risk lookup by ISO ID
+  const riskByIsoId: Record<string, CountryData> = {}
+  countries.forEach((c) => { riskByIsoId[c.isoId] = c })
+
+  const getCountryFill = (featureId: string): string => {
+    const data = riskByIsoId[featureId]
+    if (!data) return "#0d2b42"
+    if (data.riskLevel === "critical") return "#7f1d1d"
+    if (data.riskLevel === "high") return "#78350f"
+    if (data.riskLevel === "medium") return "#1e3a5f"
+    return "#0d3b3b"
+  }
+
+  const getCountryStroke = (featureId: string): string => {
+    const data = riskByIsoId[featureId]
+    if (!data) return "#1b9aaa"
+    if (data.riskLevel === "critical") return "#ef4444"
+    if (data.riskLevel === "high") return "#f59e0b"
+    if (data.riskLevel === "medium") return "#3b82f6"
+    return "#10b981"
+  }
 
   const drawMap = () => {
     if (!svgRef.current || !containerRef.current) return
@@ -69,7 +116,7 @@ export default function GeoMap() {
       .attr("stroke-width", 0.2)
       .attr("stroke-opacity", 0.15)
 
-    // Draw countries
+    // Draw countries with risk-based coloring
     if (worldDataRef.current) {
       const land = topojson.feature(worldDataRef.current, worldDataRef.current.objects.countries) as any
       g.selectAll("path.country")
@@ -78,13 +125,27 @@ export default function GeoMap() {
         .append("path")
         .attr("class", "country")
         .attr("d", path as any)
-        .attr("fill", "#0d2b42")
-        .attr("stroke", "#1b9aaa")
-        .attr("stroke-width", 0.4)
-        .attr("stroke-opacity", 0.2)
+        .attr("fill", (d: any) => getCountryFill(d.id))
+        .attr("stroke", (d: any) => getCountryStroke(d.id))
+        .attr("stroke-width", (d: any) => {
+          const data = riskByIsoId[d.id]
+          return data && data.riskLevel === "critical" ? 1.5 : 0.4
+        })
+        .attr("stroke-opacity", (d: any) => {
+          const data = riskByIsoId[d.id]
+          if (!data) return 0.2
+          if (data.riskLevel === "critical") return 0.9
+          if (data.riskLevel === "high") return 0.6
+          return 0.35
+        })
+        .style("cursor", (d: any) => riskByIsoId[d.id] ? "pointer" : "default")
+        .on("click", (_event: any, d: any) => {
+          const data = riskByIsoId[d.id]
+          if (data) setSelectedCountry(data)
+        })
     }
 
-    // Draw risk overlay circles
+    // Draw risk overlay point markers
     countries.forEach((country) => {
       const coords = projection([country.lng, country.lat])
       if (!coords) return
@@ -105,14 +166,25 @@ export default function GeoMap() {
         .attr("fill", country.color)
         .attr("fill-opacity", 0.8)
 
+      // Pulsing ring for critical
+      if (country.riskLevel === "critical") {
+        point.append("circle")
+          .attr("r", Math.max(12, country.riskScore / 5))
+          .attr("fill", "none")
+          .attr("stroke", "#ef4444")
+          .attr("stroke-width", 1.5)
+          .attr("stroke-opacity", 0.3)
+      }
+
       // Label
       point.append("text")
         .attr("x", 0)
         .attr("y", -Math.max(8, country.riskScore / 6) - 4)
         .attr("text-anchor", "middle")
-        .attr("fill", "rgba(255,255,255,0.5)")
-        .attr("font-size", "8px")
+        .attr("fill", country.riskLevel === "critical" ? "rgba(239,68,68,0.8)" : "rgba(255,255,255,0.5)")
+        .attr("font-size", country.riskLevel === "critical" ? "9px" : "8px")
         .attr("font-family", "monospace")
+        .attr("font-weight", country.riskLevel === "critical" ? "bold" : "normal")
         .text(country.name.length > 12 ? country.name.slice(0, 10) + ".." : country.name)
 
       point.on("click", () => setSelectedCountry(country))
